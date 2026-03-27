@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Lívia Mazine - Fisioterapeuta</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#96DCF5;--dark:#00405A;--black:#07131a;--surface:#0d1e27;--surface2:#122130;--surface3:#1a2e3d;--border:rgba(150,220,245,.13);--border2:rgba(150,220,245,.28);--text:#e2f2f9;--text2:#85b5cc;--text3:#4e7f95;--success:#4ecb7a;--danger:#e86060;--warning:#f0a050;--radius:14px;--radius-sm:9px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden}
+body{display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative}
+
+/* WATERMARK */
+.bg-watermark{position:fixed;inset:0;pointer-events:none;z-index:0;display:flex;align-items:center;justify-content:center;max-width:430px;margin:0 auto}
+.bg-watermark svg{width:75%;opacity:.04}
+
+/* HEADER */
+.app-header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px 9px;flex-shrink:0;position:relative;z-index:10}
+.header-logo{display:flex;align-items:center;gap:10px}
+.logo-text h1{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--primary);letter-spacing:.5px;line-height:1}
+.logo-text span{font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase}
+
+/* NAV */
+.bottom-nav{background:var(--surface);border-top:1px solid var(--border);display:flex;flex-shrink:0;position:relative;z-index:10}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 2px 7px;border:none;background:transparent;cursor:pointer;color:var(--text3);font-size:9px;font-family:'DM Sans',sans-serif;position:relative}
+.nav-btn.active{color:var(--primary)}
+.nav-btn.active::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:2px;background:var(--primary);border-radius:0 0 2px 2px}
+.nav-icon{font-size:18px;line-height:1}
+
+/* SCREENS */
+.screen{display:none;flex:1;overflow-y:auto;overflow-x:hidden;position:relative;z-index:1}
+.screen.active{display:block}
+
+/* AGENDA */
+.today-header{display:flex;align-items:flex-start;justify-content:space-between;padding:16px 16px 12px}
+.today-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;line-height:1}
+.today-sub{font-size:11px;color:var(--text3);margin-top:3px;text-transform:capitalize}
+.btn-show-cal{background:rgba(150,220,245,.1);border:1px solid var(--border2);color:var(--primary);border-radius:20px;padding:6px 13px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;white-space:nowrap;margin-top:4px}
+
+/* DAY PANEL */
+.day-panel{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin:0 14px 14px;overflow:hidden}
+.day-panel-header{display:flex;align-items:center;justify-content:space-between;padding:11px 13px 9px;border-bottom:1px solid var(--border)}
+.day-panel-title{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--text2)}
+.btn-add-visit{background:var(--primary);color:var(--dark);border:none;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+.visit-list{list-style:none}
+.visit-item{display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--border);position:relative;transition:background .15s}
+.visit-item:last-child{border-bottom:none}
+.visit-item:hover{background:rgba(150,220,245,.04)}
+.visit-check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;cursor:pointer}
+.visit-item.done .visit-check{background:var(--success);border-color:var(--success)}
+.check-inner{color:white;font-size:12px;display:none}
+.visit-item.done .check-inner{display:block}
+.visit-info{flex:1;min-width:0;cursor:pointer}
+.visit-name{font-size:13px;font-weight:500}
+.visit-item.done .visit-name{text-decoration:line-through;color:var(--text3)}
+.visit-meta{font-size:10px;color:var(--text3);display:flex;gap:6px;margin-top:2px;flex-wrap:wrap}
+.vtag{background:rgba(150,220,245,.12);color:var(--primary);border-radius:4px;padding:1px 5px;font-size:9px}
+.vactions{display:flex;gap:3px}
+.vbtn{background:none;border:none;color:var(--text3);cursor:pointer;padding:4px;border-radius:5px;font-size:13px;line-height:1;transition:color .2s}
+.vbtn:hover{color:var(--primary)}
+.vbtn.del:hover{color:var(--danger)}
+.expand-arr{font-size:10px;color:var(--text3);transition:transform .2s;cursor:pointer;padding:4px}
+.visit-item.expanded .expand-arr{transform:rotate(180deg)}
+.vdetail{background:var(--surface3);border-top:1px solid var(--border);padding:9px 13px 10px;display:none}
+.vdetail.open{display:block}
+.vdrow{display:flex;align-items:flex-start;gap:6px;font-size:11px;color:var(--text3);margin-bottom:4px}
+.vdrow:last-child{margin-bottom:0}
+.vdrow strong{color:var(--text2)}
+.edit-t-btn{background:none;border:none;color:var(--primary);font-size:10px;cursor:pointer;padding:0;font-family:'DM Sans',sans-serif;margin-left:auto}
+
+.empty-state{padding:28px 16px;text-align:center;color:var(--text3);font-size:12px}
+.empty-icon{font-size:26px;margin-bottom:6px}
+
+/* CALENDAR OVERLAY */
+.cal-overlay{display:none;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.85);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center}
+.cal-overlay.open{display:flex}
+.cal-sheet{background:var(--surface2);border-radius:16px 16px 0 0;border-top:1px solid var(--border);width:100%;max-width:430px;padding-bottom:16px;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.cal-handle{width:34px;height:3px;background:var(--border2);border-radius:2px;margin:10px auto 4px}
+.cal-hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 14px 4px}
+.cal-nav{background:none;border:none;color:var(--primary);font-size:24px;cursor:pointer;padding:4px 10px}
+.cal-month{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600}
+.cal-yr{font-size:10px;color:var(--text3);text-align:center;margin-bottom:4px}
+.cal-ghdr{display:grid;grid-template-columns:repeat(7,1fr);padding:0 10px;margin-bottom:2px}
+.cal-dn{text-align:center;font-size:9px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;padding:3px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);padding:0 10px;gap:1px}
+.cal-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;border-radius:50%;cursor:pointer;font-size:12px;position:relative;transition:background .15s}
+.cal-cell:hover{background:rgba(150,220,245,.1)}
+.cal-cell.other{color:var(--text3);opacity:.35}
+.cal-cell.today{color:var(--primary);font-weight:600}
+.cal-cell.today::before{content:'';position:absolute;inset:2px;border-radius:50%;border:1.5px solid var(--primary)}
+.cal-cell.sel{background:var(--primary);color:var(--dark);font-weight:600}
+.cal-cell.sel::before{display:none}
+.cal-cell.hev .dot{width:3px;height:3px;border-radius:50%;background:var(--primary)}
+.cal-cell.sel .dot{background:var(--dark)}
+.cal-close{display:block;margin:10px 14px 0;background:var(--surface3);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:10px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;width:calc(100% - 28px);text-align:center}
+
+/* PATIENTS */
+.screen-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 11px}
+.screen-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600}
+.btn-primary{background:var(--primary);color:var(--dark);border:none;border-radius:20px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.search-bar{margin:0 14px 11px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;gap:7px;padding:8px 12px}
+.search-bar input{background:none;border:none;color:var(--text);flex:1;font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
+.search-bar input::placeholder{color:var(--text3)}
+
+.pcard{margin:0 14px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 13px;transition:border-color .2s}
+.pcard:hover{border-color:var(--border2)}
+.pcard-hdr{display:flex;align-items:center;gap:10px}
+.pavatar{width:38px;height:38px;border-radius:50%;background:var(--dark);border:1.5px solid var(--primary);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--primary);flex-shrink:0}
+.pname{font-size:14px;font-weight:500}
+.psub{font-size:11px;color:var(--text3);margin-top:1px}
+.pqa{display:flex;gap:4px;margin-left:auto;flex-shrink:0}
+.pqa-btn{background:rgba(150,220,245,.07);border:1px solid var(--border);color:var(--text2);border-radius:7px;padding:5px 7px;font-size:12px;cursor:pointer;transition:all .15s;line-height:1}
+.pqa-btn:hover{background:rgba(150,220,245,.18);color:var(--primary)}
+.pqa-btn.del:hover{background:rgba(232,96,96,.18);color:var(--danger);border-color:rgba(232,96,96,.3)}
+.pbadges{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.badge{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:500}
+.b-blue{background:rgba(150,220,245,.13);color:var(--primary)}
+.b-green{background:rgba(78,203,122,.13);color:var(--success)}
+.b-orange{background:rgba(240,160,80,.13);color:var(--warning)}
+.b-gray{background:rgba(150,180,200,.1);color:var(--text3)}
+
+/* PAYMENTS */
+.pay-summary{margin:0 14px 11px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.scard{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+.slabel{font-size:9px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
+.sval{font-size:20px;font-weight:600;font-family:'Cormorant Garamond',serif}
+.sval.g{color:var(--success)}
+.sval.o{color:var(--warning)}
+.paycard{margin:0 14px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 13px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color .2s}
+.paycard:hover{border-color:var(--border2)}
+.ftabs{display:flex;gap:6px;padding:0 14px 11px;overflow-x:auto;scrollbar-width:none}
+.ftab{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:11px;color:var(--text3);cursor:pointer;white-space:nowrap;transition:all .2s;font-family:'DM Sans',sans-serif}
+.ftab.active{background:var(--primary);color:var(--dark);border-color:var(--primary);font-weight:600}
+
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.83);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface2);border-radius:16px 16px 0 0;border-top:1px solid var(--border);width:100%;max-width:430px;max-height:93vh;overflow-y:auto;animation:slideUp .3s ease}
+.mhandle{width:34px;height:3px;background:var(--border2);border-radius:2px;margin:10px auto 0}
+.mhdr{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border)}
+.mtitle{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600}
+.mclose{background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;padding:0 4px;line-height:1}
+.mbody{padding:16px}
+
+.flabel{font-size:10px;color:var(--text3);margin-bottom:5px;letter-spacing:.5px;text-transform:uppercase}
+.finput{width:100%;background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+.finput:focus{border-color:var(--primary)}
+.finput::placeholder{color:var(--text3)}
+select.finput option{background:var(--surface3)}
+textarea.finput{resize:vertical;min-height:70px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fgroup{margin-bottom:13px}
+
+.btn-submit{width:100%;background:var(--primary);color:var(--dark);border:none;border-radius:var(--radius-sm);padding:13px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:4px}
+.btn-danger2{width:100%;background:rgba(232,96,96,.13);color:var(--danger);border:1px solid rgba(232,96,96,.28);border-radius:var(--radius-sm);padding:10px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:8px}
+.btn-sec{width:100%;background:var(--surface3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:8px}
+.btn-wa{width:100%;background:#25D366;color:white;border:none;border-radius:var(--radius-sm);padding:12px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:8px}
+
+/* AREAS MANAGER */
+.area-wrap{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius-sm);min-height:44px}
+.atag{display:flex;align-items:center;gap:4px;background:rgba(150,220,245,.12);border:1px solid var(--border2);color:var(--primary);border-radius:20px;padding:4px 10px;font-size:11px}
+.atag-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;line-height:1;padding:0 0 0 2px}
+.atag-del:hover{color:var(--danger)}
+
+/* CONFIRM */
+.confirm-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.88);align-items:center;justify-content:center}
+.confirm-overlay.open{display:flex}
+.confirm-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:22px 18px;width:82%;max-width:310px;text-align:center;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.ctitle{font-size:15px;font-weight:600;margin-bottom:7px}
+.ctext{font-size:12px;color:var(--text3);margin-bottom:16px}
+.cactions{display:flex;gap:8px}
+.ccancel{flex:1;background:var(--surface3);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:10px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer}
+.cok{flex:1;background:var(--danger);border:none;color:white;border-radius:var(--radius-sm);padding:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+
+/* HISTORY */
+.hist-mhdr{padding:12px 16px 5px;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--text2)}
+.hist-item{margin:0 14px 7px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:11px 13px}
+
+/* DOCS */
+.doc-preview{background:white;border-radius:8px;padding:18px;color:#111;font-family:'DM Sans',sans-serif;position:relative;overflow:hidden;margin-bottom:13px}
+.doc-wm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0}
+.doc-cnt{position:relative;z-index:1}
+.doc-divider{height:1px;background:#e5e5e5;margin:9px 0}
+.doc-title-txt{font-size:12px;font-weight:700;color:#00405A;text-align:center;margin-bottom:10px;text-transform:uppercase;letter-spacing:1.5px}
+.doc-row{display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px}
+.doc-row span:first-child{color:#666}
+.doc-total{font-weight:700;font-size:13px;color:#00405A;margin-top:4px}
+.doc-sig{margin-top:18px;text-align:center}
+.doc-sig-line{border-top:1px solid #aaa;width:155px;margin:0 auto 4px}
+.doc-sig p{font-size:10px;color:#333;font-weight:600}
+.doc-sig small{font-size:9px;color:#777}
+.doc-footer{margin-top:11px;font-size:9px;color:#888;text-align:center;font-style:italic}
+.laudo-sec{margin-bottom:9px}
+.laudo-sec-title{font-size:9px;font-weight:700;color:#00405A;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #ddd;padding-bottom:2px;margin-bottom:5px}
+.laudo-sec p{font-size:10px;line-height:1.6;color:#333}
+.doc-brand h3{font-family:'Cormorant Garamond',serif;font-size:17px;color:#00405A;line-height:1}
+.doc-brand p{font-size:8px;color:#888;letter-spacing:1.5px;text-transform:uppercase;margin-top:1px}
+.doc-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.mscroll{max-height:68vh;overflow-y:auto}
+
+/* METHOD BTNS */
+.meth-btn{flex:1;min-width:58px;background:var(--surface3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 5px;font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;text-align:center}
+.meth-btn.active{background:var(--primary);color:var(--dark);border-color:var(--primary);font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND WATERMARK -->
+<div class="bg-watermark">
+<svg viewBox="0 0 500 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="250" cy="95" rx="65" ry="65" fill="#96DCF5"/>
+  <path d="M250 48 C250 48 228 63 227 80 C226 97 238 108 249 109 C260 109 274 98 274 81 C274 63 250 48 250 48Z" fill="#00405A"/>
+  <ellipse cx="237" cy="87" rx="9" ry="13" fill="#96DCF5" opacity=".7"/>
+  <ellipse cx="263" cy="87" rx="9" ry="13" fill="#96DCF5" opacity=".7"/>
+  <ellipse cx="250" cy="67" rx="9" ry="11" fill="#96DCF5" opacity=".9"/>
+  <text x="68" y="205" font-family="Georgia,serif" font-size="70" fill="#96DCF5" letter-spacing="3">Livia</text>
+  <text x="248" y="205" font-family="Georgia,serif" font-size="70" fill="#96DCF5" letter-spacing="3">Mazine</text>
+  <line x1="248" y1="213" x2="495" y2="213" stroke="#96DCF5" stroke-width="2.5"/>
+  <text x="250" y="238" font-family="Arial,sans-serif" font-size="19" fill="#96DCF5" text-anchor="middle" letter-spacing="7">FISIOTERAPEUTA</text>
+</svg>
+</div>
+
+<!-- HEADER -->
+<div class="app-header">
+  <div class="header-logo">
+    <svg width="34" height="34" viewBox="0 0 100 100" fill="none">
+      <ellipse cx="50" cy="50" rx="48" ry="48" fill="#96DCF5" opacity=".12" stroke="#96DCF5" stroke-width="1.5"/>
+      <path d="M50 22C50 22 32 36 31 52C30 68 41 76 50 77C59 77 70 69 70 53C70 37 50 22 50 22Z" fill="#96DCF5" opacity=".8"/>
+      <ellipse cx="42" cy="56" rx="7" ry="10" fill="#00405A"/>
+      <ellipse cx="58" cy="56" rx="7" ry="10" fill="#00405A"/>
+      <ellipse cx="50" cy="40" rx="7" ry="9" fill="#00405A"/>
+    </svg>
+    <div class="logo-text">
+      <h1>Lívia Mazine</h1>
+      <span>Fisioterapeuta · CREFITO 248573-F</span>
+    </div>
+  </div>
+</div>
+
+<!-- SCREENS -->
+<div style="flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative">
+
+<!-- AGENDA -->
+<div class="screen active" id="screen-cal">
+  <div class="today-header">
+    <div>
+      <div class="today-title" id="today-big-title">Hoje</div>
+      <div class="today-sub" id="today-big-sub"></div>
+    </div>
+    <button class="btn-show-cal" onclick="openCalOverlay()">📅 Calendário</button>
+  </div>
+  <div class="day-panel">
+    <div class="day-panel-header">
+      <div class="day-panel-title" id="day-panel-lbl">Atendimentos de hoje</div>
+      <button class="btn-add-visit" onclick="openVisitModal()">+ Novo</button>
+    </div>
+    <ul class="visit-list" id="visit-list"></ul>
+  </div>
+  <div style="height:20px"></div>
+</div>
+
+<!-- PACIENTES -->
+<div class="screen" id="screen-patients">
+  <div class="screen-hdr">
+    <div class="screen-title">Pacientes</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn-primary" style="background:var(--surface3);color:var(--primary);border:1px solid var(--border2);font-size:10px" onclick="openAreasModal()">⚙ Áreas</button>
+      <button class="btn-primary" onclick="openPatientModal()">+ Novo</button>
+    </div>
+  </div>
+  <div class="search-bar">
+    <span style="color:var(--text3);font-size:15px">⌕</span>
+    <input type="text" placeholder="Buscar paciente..." id="patient-search" oninput="renderPatients()">
+  </div>
+  <div id="patient-list"></div>
+  <div style="height:20px"></div>
+</div>
+
+<!-- PAGAMENTOS -->
+<div class="screen" id="screen-pay">
+  <div class="screen-hdr">
+    <div class="screen-title">Pagamentos</div>
+    <div style="font-size:11px;color:var(--text3)" id="pay-month-label"></div>
+  </div>
+  <div class="pay-summary">
+    <div class="scard"><div class="slabel">Recebido</div><div class="sval g" id="pay-received">R$ 0</div></div>
+    <div class="scard"><div class="slabel">Pendente</div><div class="sval o" id="pay-pending">R$ 0</div></div>
+  </div>
+  <div class="ftabs">
+    <div class="ftab active" onclick="setPayFilter('todos',this)">Todos</div>
+    <div class="ftab" onclick="setPayFilter('pendente',this)">Pendente</div>
+    <div class="ftab" onclick="setPayFilter('pago',this)">Pago</div>
+  </div>
+  <div id="payment-list"></div>
+  <div style="height:20px"></div>
+</div>
+
+<!-- HISTÓRICO -->
+<div class="screen" id="screen-history">
+  <div class="screen-hdr"><div class="screen-title">Histórico</div></div>
+  <div id="history-list" style="padding-bottom:20px"></div>
+</div>
+
+<!-- DOCUMENTOS -->
+<div class="screen" id="screen-docs">
+  <div class="screen-hdr"><div class="screen-title">Documentos</div></div>
+  <div style="padding:0 14px">
+    <div class="pcard" style="cursor:pointer" onclick="openDocModal('recibo')">
+      <div class="pcard-hdr">
+        <div class="pavatar" style="background:rgba(150,220,245,.08);font-size:18px">🧾</div>
+        <div><div class="pname">Gerar Recibo</div><div class="psub">Recibo personalizado com logo · PDF / WhatsApp</div></div>
+      </div>
+    </div>
+    <div class="pcard" style="cursor:pointer;margin-top:2px" onclick="openDocModal('laudo')">
+      <div class="pcard-hdr">
+        <div class="pavatar" style="background:rgba(150,220,245,.08);font-size:18px">📋</div>
+        <div><div class="pname">Gerar Laudo</div><div class="psub">Laudo fisioterapêutico com marca d'água · PDF</div></div>
+      </div>
+    </div>
+  </div>
+  <div style="height:20px"></div>
+</div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="switchTab('cal',this)"><span class="nav-icon">📅</span>Agenda</button>
+  <button class="nav-btn" onclick="switchTab('patients',this)"><span class="nav-icon">👥</span>Pacientes</button>
+  <button class="nav-btn" onclick="switchTab('pay',this)"><span class="nav-icon">💰</span>Pgto.</button>
+  <button class="nav-btn" onclick="switchTab('history',this)"><span class="nav-icon">📊</span>Histórico</button>
+  <button class="nav-btn" onclick="switchTab('docs',this)"><span class="nav-icon">📄</span>Docs</button>
+</nav>
+
+<!-- CAL OVERLAY -->
+<div class="cal-overlay" id="cal-overlay">
+  <div class="cal-sheet">
+    <div class="cal-handle"></div>
+    <div class="cal-hdr">
+      <button class="cal-nav" id="cal-prev">‹</button>
+      <div style="text-align:center"><div class="cal-month" id="cal-month-name"></div><div class="cal-yr" id="cal-year"></div></div>
+      <button class="cal-nav" id="cal-next">›</button>
+    </div>
+    <div class="cal-ghdr"><div class="cal-dn">Dom</div><div class="cal-dn">Seg</div><div class="cal-dn">Ter</div><div class="cal-dn">Qua</div><div class="cal-dn">Qui</div><div class="cal-dn">Sex</div><div class="cal-dn">Sáb</div></div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <button class="cal-close" onclick="closeCalOverlay()">Fechar</button>
+  </div>
+</div>
+
+<!-- VISIT MODAL -->
+<div class="modal-overlay" id="modal-visit">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhdr"><div class="mtitle" id="visit-mtitle">Novo Atendimento</div><button class="mclose" onclick="closeModal('modal-visit')">×</button></div>
+    <div class="mbody">
+      <div class="fgroup"><div class="flabel">Paciente</div><select class="finput" id="v-patient"></select></div>
+      <div class="frow">
+        <div class="fgroup"><div class="flabel">Horário</div><input type="time" class="finput" id="v-time"></div>
+        <div class="fgroup"><div class="flabel">Duração</div><select class="finput" id="v-duration"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>1 hora</option><option value="90">1h30</option></select></div>
+      </div>
+      <div class="fgroup"><div class="flabel">Área / Tratamento</div><select class="finput" id="v-type"><option value="">Selecione...</option></select></div>
+      <div class="fgroup"><div class="flabel">Observações</div><textarea class="finput" id="v-obs" placeholder="Observações..."></textarea></div>
+      <button class="btn-submit" onclick="saveVisit()">Salvar</button>
+      <button class="btn-danger2" id="vdelbtn" style="display:none" onclick="deleteVisitFromModal()">Excluir atendimento</button>
+    </div>
+  </div>
+</div>
+
+<!-- PATIENT MODAL -->
+<div class="modal-overlay" id="modal-patient">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhdr"><div class="mtitle" id="patient-mtitle">Novo Paciente</div><button class="mclose" onclick="closeModal('modal-patient')">×</button></div>
+    <div class="mbody">
+      <div class="frow">
+        <div class="fgroup"><div class="flabel">Nome Completo</div><input type="text" class="finput" id="p-name" placeholder="Nome"></div>
+        <div class="fgroup"><div class="flabel">WhatsApp / Tel.</div><input type="tel" class="finput" id="p-phone" placeholder="(00) 00000-0000"></div>
+      </div>
+      <div class="frow">
+        <div class="fgroup"><div class="flabel">Nascimento</div><input type="date" class="finput" id="p-birth"></div>
+        <div class="fgroup"><div class="flabel">Convênio / Plano</div><input type="text" class="finput" id="p-plan" placeholder="Particular..."></div>
+      </div>
+      <div class="fgroup"><div class="flabel">Endereço Completo</div><input type="text" class="finput" id="p-address" placeholder="Rua, número, bairro, cidade - UF"></div>
+      <div class="fgroup"><div class="flabel">Área Principal</div><select class="finput" id="p-area"><option value="">Selecione...</option></select></div>
+      <div class="fgroup"><div class="flabel">Forma de Pagamento</div><select class="finput" id="p-paymode" onchange="togglePayFields()"><option value="sessao">Por sessão</option><option value="pacote">Pacote de sessões</option><option value="mensal">Mensal</option></select></div>
+      <div id="p-pkg-row" style="display:none">
+        <div class="frow">
+          <div class="fgroup"><div class="flabel">Nº Sessões</div><input type="number" class="finput" id="p-sessions" placeholder="10" min="1"></div>
+          <div class="fgroup"><div class="flabel">Valor Pacote</div><input type="text" class="finput" id="p-pkgValue" placeholder="R$ 0,00"></div>
+        </div>
+      </div>
+      <div class="fgroup" id="p-price-row"><div class="flabel">Valor por Sessão / Mês</div><input type="text" class="finput" id="p-price" placeholder="R$ 0,00"></div>
+      <div class="fgroup"><div class="flabel">Observações / CID / Diagnóstico</div><textarea class="finput" id="p-obs" placeholder="Histórico clínico, diagnóstico..."></textarea></div>
+      <button class="btn-submit" onclick="savePatient()">Salvar Paciente</button>
+      <button class="btn-danger2" id="pdelbtn" style="display:none" onclick="deletePatient()">Excluir paciente</button>
+    </div>
+  </div>
+</div>
+
+<!-- AREAS MODAL -->
+<div class="modal-overlay" id="modal-areas">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhdr"><div class="mtitle">Áreas de Tratamento</div><button class="mclose" onclick="closeModal('modal-areas')">×</button></div>
+    <div class="mbody">
+      <div class="flabel" style="margin-bottom:8px">Áreas cadastradas (toque × para remover)</div>
+      <div class="area-wrap" id="area-wrap"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <input type="text" class="finput" id="new-area-inp" placeholder="Nova área..." onkeydown="if(event.key==='Enter')addArea()">
+        <button onclick="addArea()" style="background:var(--primary);color:var(--dark);border:none;border-radius:var(--radius-sm);padding:0 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap">Adicionar</button>
+      </div>
+      <button class="btn-sec" onclick="closeModal('modal-areas')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="modal-payment">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhdr"><div class="mtitle">Pagamento</div><button class="mclose" onclick="closeModal('modal-payment')">×</button></div>
+    <div class="mbody" id="pay-modal-body"></div>
+  </div>
+</div>
+
+<!-- DOC MODAL -->
+<div class="modal-overlay" id="modal-doc">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhdr"><div class="mtitle" id="doc-mtitle">Recibo</div><button class="mclose" onclick="closeModal('modal-doc')">×</button></div>
+    <div class="mbody mscroll" id="doc-body"></div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="ctitle" id="ctitle">Confirmar</div>
+    <div class="ctext" id="ctext">Deseja continuar?</div>
+    <div class="cactions">
+      <button class="ccancel" onclick="closeConfirm()">Cancelar</button>
+      <button class="cok" id="cok-btn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───
+const FISIO_NAME='Lívia Mazine da Rocha Benevenuto',FISIO_CREFITO='248573-F',FISIO_PHONE='32 9 8417-9463';
+const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const WD=['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+
+let patients=JSON.parse(localStorage.getItem('lm2-patients')||'[]');
+let visits=JSON.parse(localStorage.getItem('lm2-visits')||'[]');
+let payments=JSON.parse(localStorage.getItem('lm2-payments')||'[]');
+let areas=JSON.parse(localStorage.getItem('lm2-areas')||'null');
+if(!areas){areas=['Traumato - Ortopedia','Geriatria','Labiríntica','Respiratória Adulto','Drenagem Linfática','Liberação Miofascial','Bandagem Funcional','Ventosa','RPG','Avaliação'];localStorage.setItem('lm2-areas',JSON.stringify(areas));}
+
+if(!patients.length){
+  patients=[
+    {id:'p1',name:'Maria Aparecida',phone:'(32) 99999-1111',birth:'1980-05-10',area:'Geriatria',paymode:'sessao',price:'120',plan:'Particular',address:'Rua das Flores, 123, Centro, Juiz de Fora - MG',obs:'Lombalgia crônica'},
+    {id:'p2',name:'João Carlos',phone:'(32) 99999-2222',birth:'1975-11-22',area:'Traumato - Ortopedia',paymode:'pacote',sessions:'10',pkgValue:'1000',plan:'Unimed',address:'Av. Brasil, 456, Bairro Novo, Juiz de Fora - MG',obs:'Pós-cirúrgico joelho'},
+    {id:'p3',name:'Ana Paula',phone:'(32) 99999-3333',birth:'1990-03-15',area:'Drenagem Linfática',paymode:'mensal',price:'500',plan:'Particular',address:'',obs:''}
+  ];
+  saveAll();
+}
+
+function saveAll(){localStorage.setItem('lm2-patients',JSON.stringify(patients));localStorage.setItem('lm2-visits',JSON.stringify(visits));localStorage.setItem('lm2-payments',JSON.stringify(payments));localStorage.setItem('lm2-areas',JSON.stringify(areas));}
+
+const today=new Date();
+function ds(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtDate(s){const[y,m,d]=s.split('-');return d+'/'+m+'/'+y;}
+const todayStr=ds(today);
+let agendaDate=todayStr;
+
+// ─── AGENDA ───
+function initAgenda(){
+  const d=new Date(agendaDate+'T12:00:00');
+  const isT=agendaDate===todayStr;
+  document.getElementById('today-big-title').textContent=isT?'Hoje':fmtDate(agendaDate);
+  document.getElementById('today-big-sub').textContent=WD[d.getDay()]+', '+d.getDate()+' de '+MONTHS[d.getMonth()]+' de '+d.getFullYear();
+  document.getElementById('day-panel-lbl').textContent=isT?'Atendimentos de hoje':'Atendimentos — '+fmtDate(agendaDate);
+  renderVisits();
+}
+
+function renderVisits(){
+  const dayV=visits.filter(v=>v.date===agendaDate).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  const list=document.getElementById('visit-list');
+  if(!dayV.length){list.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div>Nenhum atendimento neste dia</div>';return;}
+  list.innerHTML='';
+  dayV.forEach(v=>{
+    const p=patients.find(x=>x.id===v.patientId)||{name:'—'};
+    const li=document.createElement('li');
+    li.className='visit-item'+(v.done?' done':'');li.dataset.id=v.id;
+    li.innerHTML=`<div class="visit-check" onclick="toggleV('${v.id}',event)"><span class="check-inner">✓</span></div>
+      <div class="visit-info" onclick="toggleDet('${v.id}',event)">
+        <div class="visit-name">${p.name}</div>
+        <div class="visit-meta">${v.time?'<span>🕐 '+v.time+'</span>':''}${v.type?'<span class="vtag">'+v.type+'</span>':''}</div>
+      </div>
+      <div class="vactions">
+        <button class="vbtn" onclick="editV('${v.id}',event)" title="Editar">✎</button>
+        <button class="vbtn del" onclick="confDelV('${v.id}',event)" title="Excluir">🗑</button>
+        <span class="expand-arr" onclick="toggleDet('${v.id}',event)">▾</span>
+      </div>`;
+    list.appendChild(li);
+    const det=document.createElement('div');det.className='vdetail';det.id='det-'+v.id;
+    det.innerHTML=(v.obs?`<div class="vdrow">📝 <strong>Obs:</strong> ${v.obs}</div>`:'')+
+      (v.duration?`<div class="vdrow">⏱ <strong>Duração:</strong> ${v.duration} min</div>`:'')+
+      `<div class="vdrow"><span>Horário: <strong>${v.time||'não definido'}</strong></span><button class="edit-t-btn" onclick="qEditTime('${v.id}')">Editar hora</button></div>`;
+    list.appendChild(det);
+  });
+}
+
+function toggleDet(id,e){e&&e.stopPropagation();const it=document.querySelector('.visit-item[data-id="'+id+'"]'),det=document.getElementById('det-'+id);if(!it||!det)return;it.classList.toggle('expanded');det.classList.toggle('open');}
+function toggleV(id,e){e&&e.stopPropagation();const v=visits.find(x=>x.id===id);if(!v)return;v.done=!v.done;if(v.done&&!v.completedAt)v.completedAt=new Date().toISOString();saveAll();renderVisits();}
+function qEditTime(id){const v=visits.find(x=>x.id===id);if(!v)return;const t=prompt('Novo horário (ex: 14:30):',v.time||'');if(t!==null){v.time=t;saveAll();renderVisits();}}
+
+// ─── CALENDAR OVERLAY ───
+let calY=today.getFullYear(),calM=today.getMonth(),calSel=todayStr;
+function openCalOverlay(){calY=today.getFullYear();calM=today.getMonth();calSel=agendaDate;renderCal();document.getElementById('cal-overlay').classList.add('open');}
+function closeCalOverlay(){document.getElementById('cal-overlay').classList.remove('open');}
+function renderCal(){
+  document.getElementById('cal-month-name').textContent=MONTHS[calM];
+  document.getElementById('cal-year').textContent=calY;
+  const g=document.getElementById('cal-grid');g.innerHTML='';
+  const first=new Date(calY,calM,1),sd=first.getDay(),dim=new Date(calY,calM+1,0).getDate(),pd=new Date(calY,calM,0).getDate();
+  for(let i=sd-1;i>=0;i--)g.appendChild(mkCell(calY,calM-1,pd-i,true));
+  for(let d=1;d<=dim;d++)g.appendChild(mkCell(calY,calM,d,false));
+  const rem=7-((sd+dim)%7);if(rem<7)for(let d=1;d<=rem;d++)g.appendChild(mkCell(calY,calM+1,d,true));
+}
+function mkCell(y,m,d,other){
+  const rm=((m%12)+12)%12,ry=m<0?y-1:m>11?y+1:y;
+  const s=ry+'-'+String(rm+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+  const isT=s===todayStr,isSel=s===calSel,hEv=visits.some(v=>v.date===s);
+  const c=document.createElement('div');
+  c.className='cal-cell'+(other?' other':'')+(isT?' today':'')+(isSel?' sel':'')+(hEv?' hev':'');
+  c.innerHTML=d+(hEv?'<div class="dot"></div>':'');
+  c.onclick=()=>{calSel=s;agendaDate=s;initAgenda();renderCal();closeCalOverlay();};
+  return c;
+}
+document.getElementById('cal-prev').onclick=()=>{calM--;if(calM<0){calM=11;calY--;}renderCal();};
+document.getElementById('cal-next').onclick=()=>{calM++;if(calM>11){calM=0;calY++;}renderCal();};
+document.getElementById('cal-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('cal-overlay'))closeCalOverlay();});
+
+// ─── VISIT MODAL ───
+let editVId=null;
+function fillAreaSel(id){const s=document.getElementById(id);const c=s.value;s.innerHTML='<option value="">Selecione...</option>';areas.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;s.appendChild(o);});s.value=c;}
+function fillPatSel(id){const s=document.getElementById(id);const c=s.value;s.innerHTML='<option value="">Selecione o paciente...</option>';patients.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;s.appendChild(o);});s.value=c;}
+function openVisitModal(id){
+  editVId=id||null;fillPatSel('v-patient');fillAreaSel('v-type');
+  const v=id?visits.find(x=>x.id===id):null;
+  document.getElementById('visit-mtitle').textContent=id?'Editar Atendimento':'Novo Atendimento';
+  document.getElementById('v-patient').value=v?v.patientId:'';
+  document.getElementById('v-time').value=v?v.time||'':'';
+  document.getElementById('v-duration').value=v?v.duration||'60':'60';
+  document.getElementById('v-type').value=v?v.type||'':'';
+  document.getElementById('v-obs').value=v?v.obs||'':'';
+  document.getElementById('vdelbtn').style.display=id?'block':'none';
+  openModal('modal-visit');
+}
+function editV(id,e){e&&e.stopPropagation();openVisitModal(id);}
+function saveVisit(){
+  const pid=document.getElementById('v-patient').value;if(!pid){alert('Selecione um paciente');return;}
+  const data={patientId:pid,time:document.getElementById('v-time').value,duration:document.getElementById('v-duration').value,type:document.getElementById('v-type').value,obs:document.getElementById('v-obs').value};
+  if(editVId)Object.assign(visits.find(x=>x.id===editVId),data);
+  else visits.push({id:'v'+Date.now(),date:agendaDate,...data,done:false});
+  saveAll();closeModal('modal-visit');renderVisits();renderCal();
+}
+function confDelV(id,e){e&&e.stopPropagation();showConfirm('Excluir atendimento?','Esta ação não pode ser desfeita.',()=>{visits=visits.filter(x=>x.id!==id);saveAll();renderVisits();renderCal();});}
+function deleteVisitFromModal(){if(!editVId)return;showConfirm('Excluir atendimento?','Esta ação não pode ser desfeita.',()=>{visits=visits.filter(x=>x.id!==editVId);saveAll();closeModal('modal-visit');renderVisits();renderCal();});}
+
+// ─── PATIENTS ───
+let editPId=null;
+function renderPatients(){
+  const q=(document.getElementById('patient-search').value||'').toLowerCase();
+  const list=document.getElementById('patient-list');
+  const f=patients.filter(p=>p.name.toLowerCase().includes(q));
+  if(!f.length){list.innerHTML='<div class="empty-state"><div class="empty-icon">👤</div>Nenhum paciente encontrado</div>';return;}
+  list.innerHTML='';
+  f.forEach(p=>{
+    const init=p.name.split(' ').slice(0,2).map(x=>x[0]).join('').toUpperCase();
+    const sess=visits.filter(v=>v.patientId===p.id&&v.done).length;
+    const hasAddr=p.address&&p.address.trim();
+    const div=document.createElement('div');div.className='pcard';
+    div.innerHTML=`<div class="pcard-hdr">
+        <div class="pavatar">${init}</div>
+        <div style="flex:1;min-width:0"><div class="pname">${p.name}</div><div class="psub">${p.area||'—'} · ${p.phone||'—'}</div></div>
+        <div class="pqa">
+          ${hasAddr?`<button class="pqa-btn" onclick="openMap('${p.id}',event)" title="Ver no mapa">📍</button>`:''}
+          <button class="pqa-btn" onclick="openPatientModal('${p.id}',event)" title="Editar">✎</button>
+          <button class="pqa-btn del" onclick="confDelPat('${p.id}',event)" title="Excluir">🗑</button>
+        </div>
+      </div>
+      <div class="pbadges">
+        <span class="badge b-blue">${sess} sessões</span>
+        <span class="badge ${p.paymode==='sessao'?'b-blue':p.paymode==='pacote'?'b-orange':'b-green'}">${p.paymode==='sessao'?'Por sessão':p.paymode==='pacote'?'Pacote':'Mensal'}</span>
+        ${p.plan?'<span class="badge b-green">'+p.plan+'</span>':''}
+        ${hasAddr?'<span class="badge b-gray">📍 '+p.address.split(',')[0]+'</span>':''}
+      </div>`;
+    list.appendChild(div);
+  });
+}
+function openMap(pid,e){e&&e.stopPropagation();const p=patients.find(x=>x.id===pid);if(!p||!p.address)return;window.open('https://maps.google.com/?q='+encodeURIComponent(p.address),'_blank');}
+
+function openPatientModal(id,e){
+  e&&e.stopPropagation();editPId=id||null;
+  const p=id?patients.find(x=>x.id===id):null;
+  const asel=document.getElementById('p-area');asel.innerHTML='<option value="">Selecione...</option>';areas.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;asel.appendChild(o);});
+  document.getElementById('patient-mtitle').textContent=id?'Editar Paciente':'Novo Paciente';
+  ['name','phone','birth','area','plan','address','obs'].forEach(k=>document.getElementById('p-'+k).value=p?p[k]||'':'');
+  document.getElementById('p-paymode').value=p?p.paymode||'sessao':'sessao';
+  document.getElementById('p-sessions').value=p?p.sessions||'':'';
+  document.getElementById('p-pkgValue').value=p?p.pkgValue||'':'';
+  document.getElementById('p-price').value=p?p.price||'':'';
+  document.getElementById('pdelbtn').style.display=id?'block':'none';
+  togglePayFields();openModal('modal-patient');
+}
+function togglePayFields(){const m=document.getElementById('p-paymode').value;document.getElementById('p-pkg-row').style.display=m==='pacote'?'block':'none';document.getElementById('p-price-row').style.display=m!=='pacote'?'block':'none';}
+function savePatient(){
+  const name=document.getElementById('p-name').value.trim();if(!name){alert('Nome é obrigatório');return;}
+  const data={name,phone:document.getElementById('p-phone').value,birth:document.getElementById('p-birth').value,area:document.getElementById('p-area').value,paymode:document.getElementById('p-paymode').value,sessions:document.getElementById('p-sessions').value,pkgValue:document.getElementById('p-pkgValue').value,price:document.getElementById('p-price').value,plan:document.getElementById('p-plan').value,address:document.getElementById('p-address').value,obs:document.getElementById('p-obs').value};
+  if(editPId)Object.assign(patients.find(x=>x.id===editPId),data);else patients.push({id:'p'+Date.now(),...data});
+  saveAll();closeModal('modal-patient');renderPatients();
+}
+function deletePatient(){showConfirm('Excluir paciente?','Os atendimentos serão mantidos.',()=>{patients=patients.filter(x=>x.id!==editPId);saveAll();closeModal('modal-patient');renderPatients();});}
+function confDelPat(id,e){e&&e.stopPropagation();showConfirm('Excluir paciente?','Deseja remover este paciente?',()=>{patients=patients.filter(x=>x.id!==id);saveAll();renderPatients();});}
+
+// ─── AREAS ───
+function openAreasModal(){renderAreaTags();openModal('modal-areas');}
+function renderAreaTags(){
+  const w=document.getElementById('area-wrap');w.innerHTML='';
+  if(!areas.length){w.innerHTML='<span style="color:var(--text3);font-size:12px">Nenhuma área cadastrada</span>';return;}
+  areas.forEach((a,i)=>{const t=document.createElement('div');t.className='atag';t.innerHTML=a+`<button class="atag-del" onclick="removeArea(${i})">×</button>`;w.appendChild(t);});
+}
+function addArea(){const inp=document.getElementById('new-area-inp');const v=inp.value.trim();if(!v)return;if(areas.includes(v)){alert('Área já cadastrada');return;}areas.push(v);saveAll();renderAreaTags();inp.value='';updateAreaSelects();}
+function removeArea(i){showConfirm('Remover área?',`Remover "${areas[i]}"?`,()=>{areas.splice(i,1);saveAll();renderAreaTags();updateAreaSelects();});}
+function updateAreaSelects(){['v-type','p-area'].forEach(id=>{const s=document.getElementById(id);if(!s)return;const c=s.value;s.innerHTML='<option value="">Selecione...</option>';areas.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;s.appendChild(o);});s.value=c;});}
+
+// ─── PAYMENTS ───
+let payF='todos';
+function setPayFilter(f,el){payF=f;document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderPayments();}
+function renderPayments(){
+  const now=new Date(),ms=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  document.getElementById('pay-month-label').textContent=MONTHS[now.getMonth()]+' '+now.getFullYear();
+  const done={};visits.filter(v=>v.date.startsWith(ms)&&v.done).forEach(v=>{done[v.patientId]=(done[v.patientId]||0)+1;});
+  let tPaid=0,tPend=0;
+  const items=patients.map(p=>{
+    const sess=done[p.id]||0;
+    const paid=payments.find(x=>x.patientId===p.id&&x.month===ms&&x.status==='pago');
+    let amt=0;
+    if(p.paymode==='sessao')amt=sess*parseFloat((p.price||'0').replace(',','.'));
+    else if(p.paymode==='mensal')amt=parseFloat((p.price||'0').replace(',','.'));
+    else if(p.paymode==='pacote')amt=parseFloat((p.pkgValue||'0').replace(',','.'));
+    const st=paid?'pago':sess>0?'pendente':'none';
+    if(paid)tPaid+=paid.amount||amt;else if(sess>0)tPend+=amt;
+    return{p,sess,amt,st,paid};
+  });
+  document.getElementById('pay-received').textContent='R$ '+tPaid.toLocaleString('pt-BR',{minimumFractionDigits:0});
+  document.getElementById('pay-pending').textContent='R$ '+tPend.toLocaleString('pt-BR',{minimumFractionDigits:0});
+  const list=document.getElementById('payment-list');
+  const fil=items.filter(i=>payF==='pago'?i.st==='pago':payF==='pendente'?i.st==='pendente':i.st!=='none');
+  if(!fil.length){list.innerHTML='<div class="empty-state"><div class="empty-icon">💳</div>Nenhum registro</div>';return;}
+  list.innerHTML='';
+  fil.forEach(({p,sess,amt,st})=>{
+    const init=p.name.split(' ').slice(0,2).map(x=>x[0]).join('').toUpperCase();
+    const div=document.createElement('div');div.className='paycard';div.onclick=()=>openPayModal(p.id,amt,ms);
+    div.innerHTML=`<div class="pavatar">${init}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">${p.name}</div><div style="font-size:10px;color:var(--text3);margin-top:1px">${sess} sessão(ões) · ${p.paymode==='sessao'?'Por sessão':p.paymode==='pacote'?'Pacote':'Mensal'}</div></div>
+      <div style="text-align:right"><div style="font-size:15px;font-weight:600;font-family:'Cormorant Garamond',serif">R$ ${amt.toLocaleString('pt-BR',{minimumFractionDigits:0})}</div>
+      <span class="badge ${st==='pago'?'b-green':'b-orange'}">${st==='pago'?'✓ Pago':'Pendente'}</span></div>`;
+    list.appendChild(div);
+  });
+}
+function openPayModal(pid,amt,ms){
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  const ex=payments.find(x=>x.patientId===pid&&x.month===ms);
+  const sess=visits.filter(v=>v.patientId===pid&&v.date.startsWith(ms)&&v.done).length;
+  const body=document.getElementById('pay-modal-body');
+  if(ex&&ex.status==='pago'){
+    body.innerHTML=`<div style="text-align:center;padding:6px 0 16px">
+      <div style="font-size:36px">✅</div>
+      <div style="font-size:16px;font-weight:600;margin:10px 0 3px">${p.name}</div>
+      <div style="color:var(--text3);font-size:12px">${MONTHS[parseInt(ms.split('-')[1])-1]} · ${sess} sessões</div>
+      <div style="font-size:24px;font-weight:600;color:var(--success);margin:12px 0 3px">R$ ${ex.amount.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+      <div style="font-size:11px;color:var(--text3)">${ex.method} · ${fmtDate(ex.date)}</div></div>
+      <button class="btn-sec" onclick="openDocFromPay('${pid}','${ms}')">📄 Gerar Recibo</button>`;
+  } else {
+    body.innerHTML=`<div style="text-align:center;padding:4px 0 12px">
+      <div style="font-size:16px;font-weight:600">${p.name}</div>
+      <div style="color:var(--text3);font-size:11px;margin-top:3px">${sess} sessões · estimado: R$ ${amt.toLocaleString('pt-BR',{minimumFractionDigits:0})}</div></div>
+      <div class="fgroup"><div class="flabel">Valor recebido</div><input type="text" class="finput" id="pay-amt-inp" value="${amt.toLocaleString('pt-BR',{minimumFractionDigits:2})}"></div>
+      <div class="fgroup">
+        <div class="flabel">Forma de pagamento</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="pay-meth-btns">
+          ${['PIX','Dinheiro','Cartão Débito','Cartão Crédito','Transferência'].map(m=>`<button onclick="selMeth(this,'pay-meth-inp')" class="meth-btn" data-v="${m}">${m}</button>`).join('')}
+        </div>
+        <input type="hidden" id="pay-meth-inp" value="PIX">
+      </div>
+      <div class="fgroup"><div class="flabel">Data do recebimento</div><input type="date" class="finput" id="pay-date-inp" value="${todayStr}"></div>
+      <button class="btn-submit" onclick="markPaid('${pid}','${ms}',${amt})">Confirmar Pagamento</button>`;
+    setTimeout(()=>{const b=document.querySelector('#pay-meth-btns .meth-btn');if(b)selMeth(b,'pay-meth-inp');},60);
+  }
+  openModal('modal-payment');
+}
+function selMeth(btn,hidId){document.querySelectorAll('#pay-meth-btns .meth-btn, #doc-meth-btns .meth-btn').forEach(b=>{if(btn.closest('#pay-meth-btns')&&b.closest('#pay-meth-btns')||btn.closest('#doc-meth-btns')&&b.closest('#doc-meth-btns')){b.classList.remove('active');}});btn.classList.add('active');document.getElementById(hidId).value=btn.dataset.v;}
+function markPaid(pid,ms,defAmt){
+  const ams=document.getElementById('pay-amt-inp').value;
+  const amount=parseFloat(ams.replace(/[^\d,]/g,'').replace(',','.'))||defAmt;
+  const method=document.getElementById('pay-meth-inp').value;
+  const date=document.getElementById('pay-date-inp').value;
+  payments=payments.filter(x=>!(x.patientId===pid&&x.month===ms));
+  payments.push({id:'pay'+Date.now(),patientId:pid,month:ms,amount,method,date,status:'pago'});
+  saveAll();closeModal('modal-payment');renderPayments();
+  setTimeout(()=>showConfirm('Enviar recibo?','Deseja gerar e enviar o recibo via WhatsApp?',()=>openDocFromPay(pid,ms),true),400);
+}
+function openDocFromPay(pid,ms){openDocModal('recibo',pid,ms);}
+
+// ─── HISTORY ───
+function renderHistory(){
+  const list=document.getElementById('history-list');
+  if(!visits.length){list.innerHTML='<div class="empty-state" style="padding:40px 16px"><div class="empty-icon">📊</div>Nenhum atendimento registrado</div>';return;}
+  const byM={};[...visits].sort((a,b)=>b.date.localeCompare(a.date)).forEach(v=>{const m=v.date.substring(0,7);if(!byM[m])byM[m]=[];byM[m].push(v);});
+  list.innerHTML='';
+  Object.entries(byM).forEach(([m,vs])=>{
+    const[y,mo]=m.split('-');const h=document.createElement('div');h.className='hist-mhdr';h.textContent=MONTHS[parseInt(mo)-1]+' '+y;list.appendChild(h);
+    vs.forEach(v=>{
+      const p=patients.find(x=>x.id===v.patientId);if(!p)return;
+      const pay=payments.find(x=>x.patientId===v.patientId&&x.month===m&&x.status==='pago');
+      const d=document.createElement('div');d.className='hist-item';
+      d.innerHTML=`<div style="font-size:13px;font-weight:500">${p.name}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:1px">${fmtDate(v.date)}${v.time?' · '+v.time:''}</div>
+        <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">
+          ${v.type?'<span class="badge b-blue">'+v.type+'</span>':''}
+          ${v.done?'<span class="badge b-green">Concluído</span>':'<span class="badge b-orange">Pendente</span>'}
+        </div>
+        ${pay?`<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:11px"><span style="color:var(--text3)">Pagamento</span><span style="color:var(--success)">✓ ${pay.method} · ${fmtDate(pay.date)}</span></div>`:''}`;
+      list.appendChild(d);
+    });
+  });
+}
+
+// ─── DOCUMENTS ───
+const WM_SVG=`<svg viewBox="0 0 500 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="250" cy="95" rx="65" ry="65" fill="#96DCF5"/>
+  <path d="M250 48C250 48 228 63 227 80C226 97 238 108 249 109C260 109 274 98 274 81C274 63 250 48 250 48Z" fill="#00405A"/>
+  <ellipse cx="237" cy="87" rx="9" ry="13" fill="#96DCF5" opacity=".7"/>
+  <ellipse cx="263" cy="87" rx="9" ry="13" fill="#96DCF5" opacity=".7"/>
+  <ellipse cx="250" cy="67" rx="9" ry="11" fill="#96DCF5" opacity=".9"/>
+  <text x="68" y="205" font-family="Georgia,serif" font-size="70" fill="#96DCF5" letter-spacing="3">Livia</text>
+  <text x="248" y="205" font-family="Georgia,serif" font-size="70" fill="#96DCF5" letter-spacing="3">Mazine</text>
+  <line x1="248" y1="213" x2="495" y2="213" stroke="#96DCF5" stroke-width="2.5"/>
+  <text x="250" y="238" font-family="Arial,sans-serif" font-size="19" fill="#96DCF5" text-anchor="middle" letter-spacing="7">FISIOTERAPEUTA</text>
+</svg>`;
+const LOGO_S=`<svg width="36" height="36" viewBox="0 0 100 100" fill="none"><ellipse cx="50" cy="50" rx="48" ry="48" fill="#96DCF5" opacity=".15" stroke="#96DCF5" stroke-width="1.5"/><path d="M50 22C50 22 32 36 31 52C30 68 41 76 50 77C59 77 70 69 70 53C70 37 50 22 50 22Z" fill="#96DCF5" opacity=".8"/><ellipse cx="42" cy="56" rx="7" ry="10" fill="#00405A"/><ellipse cx="58" cy="56" rx="7" ry="10" fill="#00405A"/><ellipse cx="50" cy="40" rx="7" ry="9" fill="#00405A"/></svg>`;
+
+function openDocModal(type,pid,ms){
+  closeModal('modal-payment');
+  document.getElementById('doc-mtitle').textContent=type==='recibo'?'Gerar Recibo':'Gerar Laudo';
+  const body=document.getElementById('doc-body');
+  const opts=patients.map(p=>`<option value="${p.id}"${p.id===pid?' selected':''}>${p.name}</option>`).join('');
+  const now=new Date();const cMs=ms||(now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0'));
+
+  if(type==='recibo'){
+    body.innerHTML=`
+      <div class="fgroup"><div class="flabel">Paciente</div><select class="finput" id="dc-pat" onchange="updDoc('recibo')">${opts}</select></div>
+      <div class="frow">
+        <div class="fgroup"><div class="flabel">Valor (R$)</div><input type="text" class="finput" id="dc-amt" placeholder="0,00" oninput="updDoc('recibo')"></div>
+        <div class="fgroup"><div class="flabel">Data</div><input type="date" class="finput" id="dc-date" value="${todayStr}" oninput="updDoc('recibo')"></div>
+      </div>
+      <div class="fgroup">
+        <div class="flabel">Forma de Pagamento</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="doc-meth-btns">
+          ${['PIX','Dinheiro','Cartão Débito','Cartão Crédito','Transferência'].map(m=>`<button onclick="selDocMeth(this)" class="meth-btn" data-v="${m}">${m}</button>`).join('')}
+        </div>
+        <input type="hidden" id="dc-meth" value="PIX">
+      </div>
+      <div class="fgroup"><div class="flabel">Descrição dos Serviços</div><textarea class="finput" id="dc-desc" rows="2" oninput="updDoc('recibo')" placeholder="Sessões de fisioterapia...">Sessões de Fisioterapia</textarea></div>
+      <div class="flabel" style="margin-bottom:7px">Pré-visualização</div>
+      <div id="doc-prev"></div>
+      <button class="btn-wa" onclick="sendWA()">📱 Enviar via WhatsApp</button>
+      <button class="btn-sec" onclick="printDoc()">🖨 Imprimir / Salvar PDF</button>`;
+    if(pid&&ms){const pay=payments.find(x=>x.patientId===pid&&x.month===ms&&x.status==='pago');if(pay){document.getElementById('dc-amt').value=pay.amount.toFixed(2).replace('.',',');document.getElementById('dc-meth').value=pay.method;document.getElementById('dc-date').value=pay.date;}}
+    setTimeout(()=>{const b=document.querySelector('#doc-meth-btns .meth-btn');if(b){b.classList.add('active');document.getElementById('dc-meth').value=b.dataset.v;}// highlight correct method
+    const m=document.getElementById('dc-meth').value;document.querySelectorAll('#doc-meth-btns .meth-btn').forEach(btn=>{btn.classList.toggle('active',btn.dataset.v===m);});updDoc('recibo');},60);
+  } else {
+    body.innerHTML=`
+      <div class="fgroup"><div class="flabel">Paciente</div><select class="finput" id="dc-pat" onchange="updDoc('laudo')">${opts}</select></div>
+      <div class="frow">
+        <div class="fgroup"><div class="flabel">Idade</div><input type="text" class="finput" id="lau-age" placeholder="35 anos" oninput="updDoc('laudo')"></div>
+        <div class="fgroup"><div class="flabel">Data</div><input type="date" class="finput" id="dc-date" value="${todayStr}" oninput="updDoc('laudo')"></div>
+      </div>
+      <div class="fgroup"><div class="flabel">Histórico Clínico</div><textarea class="finput" id="lau-hist" rows="3" oninput="updDoc('laudo')" placeholder="Histórico..."></textarea></div>
+      <div class="fgroup"><div class="flabel">Avaliação Fisioterapêutica</div><textarea class="finput" id="lau-aval" rows="3" oninput="updDoc('laudo')" placeholder="Achados..."></textarea></div>
+      <div class="fgroup"><div class="flabel">Conclusão</div><textarea class="finput" id="lau-conc" rows="3" oninput="updDoc('laudo')" placeholder="Conclusão..."></textarea></div>
+      <div class="flabel" style="margin-bottom:7px">Pré-visualização</div>
+      <div id="doc-prev"></div>
+      <button class="btn-sec" onclick="printDoc()">🖨 Imprimir / Salvar PDF</button>`;
+    if(pid){const p=patients.find(x=>x.id===pid);if(p&&p.obs)document.getElementById('lau-hist').value=p.obs;}
+    setTimeout(()=>updDoc('laudo'),60);
+  }
+  openModal('modal-doc');
+}
+function selDocMeth(btn){document.querySelectorAll('#doc-meth-btns .meth-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('dc-meth').value=btn.dataset.v;updDoc('recibo');}
+
+function updDoc(type){
+  const prev=document.getElementById('doc-prev');if(!prev)return;
+  const sel=document.getElementById('dc-pat');if(!sel)return;
+  const p=patients.find(x=>x.id===sel.value)||{name:'—',phone:''};
+  const dv=(document.getElementById('dc-date')||{}).value||todayStr;
+  const[y,m,d]=dv.split('-');const df=d+'/'+m+'/'+y;
+  const rn='REC-'+Date.now().toString().slice(-6);
+  if(type==='recibo'){
+    const amt=(document.getElementById('dc-amt')||{}).value||'0,00';
+    const meth=(document.getElementById('dc-meth')||{}).value||'PIX';
+    const desc=(document.getElementById('dc-desc')||{}).value||'Sessões de Fisioterapia';
+    prev.innerHTML=`<div class="doc-preview" id="printable-doc">
+      <div class="doc-wm" style="opacity:.22">${WM_SVG}</div>
+      <div class="doc-cnt">
+        <div class="doc-hdr"><div class="doc-brand"><h3>Lívia Mazine</h3><p>Fisioterapeuta</p></div>${LOGO_S}</div>
+        <div class="doc-divider"></div>
+        <div class="doc-title-txt">Recibo de Pagamento</div>
+        <div class="doc-row"><span>Nº</span><span>${rn}</span></div>
+        <div class="doc-row"><span>Data</span><span>${df}</span></div>
+        <div class="doc-divider"></div>
+        <div class="doc-row"><span>Paciente</span><span><strong>${p.name}</strong></span></div>
+        <div class="doc-row"><span>Serviços</span><span style="max-width:55%;text-align:right">${desc}</span></div>
+        <div class="doc-row"><span>Forma de Pagamento</span><span>${meth}</span></div>
+        <div class="doc-divider"></div>
+        <div class="doc-row doc-total"><span>Total</span><span>R$ ${amt}</span></div>
+        <div class="doc-sig"><div class="doc-sig-line"></div><p>${FISIO_NAME}</p><small>CREFITO: ${FISIO_CREFITO}</small></div>
+        <div class="doc-footer">Declaro que recebi a importância acima pela prestação de serviços de fisioterapia.</div>
+      </div></div>`;
+  } else {
+    const age=(document.getElementById('lau-age')||{}).value||'';
+    const hist=(document.getElementById('lau-hist')||{}).value||'';
+    const aval=(document.getElementById('lau-aval')||{}).value||'';
+    const conc=(document.getElementById('lau-conc')||{}).value||'';
+    prev.innerHTML=`<div class="doc-preview" id="printable-doc">
+      <div class="doc-wm" style="opacity:.14;transform:scale(1.15)">${WM_SVG}</div>
+      <div class="doc-cnt">
+        <div class="doc-hdr"><div class="doc-brand"><h3>Lívia Mazine</h3><p>Fisioterapeuta · CREFITO ${FISIO_CREFITO}</p></div>${LOGO_S}</div>
+        <div class="doc-divider"></div>
+        <div class="doc-title-txt">Laudo Fisioterapêutico</div>
+        <div class="laudo-sec"><div class="laudo-sec-title">Identificação do Paciente</div><p>Paciente: <strong>${p.name}</strong>${age?' &nbsp;·&nbsp; Idade: '+age:''}</p></div>
+        ${hist?`<div class="laudo-sec"><div class="laudo-sec-title">Histórico Clínico</div><p>${hist}</p></div>`:''}
+        ${aval?`<div class="laudo-sec"><div class="laudo-sec-title">Avaliação Fisioterapêutica</div><p>${aval}</p></div>`:''}
+        ${conc?`<div class="laudo-sec"><div class="laudo-sec-title">Conclusão</div><p>${conc}</p></div>`:''}
+        <div class="doc-divider" style="margin-top:14px"></div>
+        <p style="font-size:9px;color:#555;margin-bottom:4px">Data: ${df}</p>
+        <div class="doc-sig"><div class="doc-sig-line"></div><p>${FISIO_NAME}</p><small>CREFITO: ${FISIO_CREFITO}</small></div>
+      </div></div>`;
+  }
+}
+function sendWA(){
+  const sel=document.getElementById('dc-pat');if(!sel)return;
+  const p=patients.find(x=>x.id===sel.value);if(!p||!p.phone){alert('Paciente sem telefone cadastrado');return;}
+  const phone=p.phone.replace(/\D/g,'');
+  const amt=(document.getElementById('dc-amt')||{}).value||'—';
+  const meth=(document.getElementById('dc-meth')||{}).value||'—';
+  const dv=(document.getElementById('dc-date')||{}).value||todayStr;const[y,m,d]=dv.split('-');
+  const msg=encodeURIComponent(`Olá ${p.name.split(' ')[0]}! 😊\n\nSegue o comprovante do pagamento:\n\n✅ *Recibo de Pagamento*\n📅 Data: ${d}/${m}/${y}\n💰 Valor: R$ ${amt}\n💳 Forma: ${meth}\n\nAtenciosamente,\n*Lívia Mazine - Fisioterapeuta*\nCREFITO: ${FISIO_CREFITO}\n📞 ${FISIO_PHONE}`);
+  window.open(`https://wa.me/55${phone}?text=${msg}`,'_blank');
+}
+function printDoc(){
+  const el=document.getElementById('printable-doc');if(!el)return;
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Documento</title><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',sans-serif;background:#fff;padding:24px}@media print{body{padding:0}}</style></head><body>`+el.outerHTML+`<script>window.onload=()=>setTimeout(window.print,500)<\/script></body></html>`);
+  win.document.close();
+}
+
+// ─── UTILS ───
+function switchTab(tab,el){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById('screen-'+tab).classList.add('active');el.classList.add('active');if(tab==='patients')renderPatients();if(tab==='pay')renderPayments();if(tab==='history')renderHistory();}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+let cbFn=null;
+function showConfirm(title,text,cb,pos){document.getElementById('ctitle').textContent=title;document.getElementById('ctext').textContent=text;const btn=document.getElementById('cok-btn');btn.textContent=pos?'Sim':'Confirmar';btn.style.background=pos?'var(--success)':'var(--danger)';cbFn=cb;document.getElementById('confirm-overlay').classList.add('open');}
+function closeConfirm(){document.getElementById('confirm-overlay').classList.remove('open');cbFn=null;}
+document.getElementById('cok-btn').onclick=()=>{if(cbFn)cbFn();closeConfirm();};
+
+// ─── INIT ───
+initAgenda();
+</script>
+</body>
+</html>
