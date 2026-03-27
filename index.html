@@ -368,6 +368,21 @@ textarea.fi{resize:vertical;min-height:68px}
         <div class="love-text">"Bom trabalho, meu amor. O mundo precisa de você."</div>
         <div class="love-from">— B ❤️</div>
       </div>
+      <div class="love-msg" id="lm-8">
+        <div class="love-heart">🏍️</div>
+        <div class="love-text">"Vai devagar, meu amor. Você é o bem mais precioso que tenho."</div>
+        <div class="love-from">— te esperando, B ❤️</div>
+      </div>
+      <div class="love-msg" id="lm-9">
+        <div class="love-heart">🛡️</div>
+        <div class="love-text">"Atenção no trânsito, amor. Cada paciente espera por você — e eu também."</div>
+        <div class="love-from">— B ❤️</div>
+      </div>
+      <div class="love-msg" id="lm-10">
+        <div class="love-heart">🌟</div>
+        <div class="love-text">"Chegue bem, chegue com calma. Sua vida vale muito mais que qualquer pressa."</div>
+        <div class="love-from">— com amor e cuidado, B ❤️</div>
+      </div>
     </div>
   </div>
   <div class="login-mid">
@@ -1339,7 +1354,7 @@ const lbEl=document.getElementById('last-bak');if(lbEl)lbEl.textContent=localSto
 // ══════════════════════════════════════════
 
 // Love messages carousel — rotate every 4 seconds
-const TOTAL_MSGS = 8;
+const TOTAL_MSGS = 11;
 let curMsg = Math.floor(Math.random() * TOTAL_MSGS); // start random
 function showMsg(idx) {
   document.querySelectorAll('.love-msg').forEach(m => m.classList.remove('visible'));
@@ -1441,20 +1456,14 @@ function unlockSuccess() {
   }, 900);
 }
 
-// Spotify — open the song
+// Spotify — open directly to the track
 function openSpotify() {
-  // Try Spotify app deep link first, fallback to web
-  const spotifyUri = 'spotify:search:Infinity%202008%20Guru%20Josh%20Project%20Klaas';
-  const webUrl = 'https://open.spotify.com/search/Infinity%202008%20Guru%20Josh%20Project%20Klaas';
-  // Try app link
-  const iframe = document.createElement('iframe');
-  iframe.style.display = 'none';
-  iframe.src = spotifyUri;
-  document.body.appendChild(iframe);
+  const trackId = '3aQz0z86zrKjd1mcZlonxE';
+  // Try native app first, fallback to web
+  window.location.href = 'spotify:track:' + trackId;
   setTimeout(() => {
-    document.body.removeChild(iframe);
-    window.open(webUrl, '_blank');
-  }, 1200);
+    window.open('https://open.spotify.com/track/' + trackId, '_blank');
+  }, 1000);
 }
 </script>
 </body>
