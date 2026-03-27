@@ -90,7 +90,13 @@ body{display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:r
 .bp{background:var(--p);color:var(--dk);border:none;border-radius:20px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
 
 /* AGENDA */
-.ag-hdr{display:flex;align-items:flex-start;justify-content:space-between;padding:14px 15px 10px}
+/* Nav love strip — acima das abas, presente em todas as telas */
+.nav-love-strip{display:flex;align-items:center;gap:10px;padding:6px 14px 5px;border-bottom:1px solid var(--bd);background:rgba(150,220,245,.03)}
+.nav-love-txt{font-size:11px;color:var(--tx2);font-style:italic;font-family:'Cormorant Garamond',serif;line-height:1.3;flex:1;opacity:.88;transition:opacity .6s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-love-txt.fade{opacity:0}
+.nav-wa-btn{background:none;border:none;cursor:pointer;padding:2px;flex-shrink:0;line-height:1;opacity:.8;transition:opacity .15s;display:flex;align-items:center}
+.nav-wa-btn:hover,.nav-wa-btn:active{opacity:1}
+.ag-hdr{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 15px 10px}
 .ag-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;line-height:1}
 .ag-sub{font-size:11px;color:var(--tx3);margin-top:3px;text-transform:capitalize}
 .bcal{background:rgba(150,220,245,.1);border:1px solid var(--bd2);color:var(--p);border-radius:20px;padding:6px 12px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500}
@@ -521,6 +527,16 @@ textarea.fi{resize:vertical;min-height:68px}
 
 <!-- BOTTOM NAV -->
 <nav class="bot-nav">
+  <!-- Love strip + WA — acima das abas, em todas as telas -->
+  <div class="nav-love-strip">
+    <span class="nav-love-txt" id="ag-strip-txt"></span>
+    <button class="nav-wa-btn" onclick="openWAme()" title="Com saudades? Toque aqui 💚">
+      <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="16" fill="#25D366"/>
+        <path d="M23 9C21.1 7.1 18.7 6 16 6 10.5 6 6 10.5 6 16c0 1.8.5 3.4 1.3 4.9L6 26l5.2-1.4c1.4.8 3 1.2 4.8 1.2 5.5 0 10-4.5 10-10 0-2.7-1-5.1-3-7zm-7 16.3c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.1.8.8-3-.2-.3C8 19.1 7.7 17.6 7.7 16c0-4.6 3.7-8.3 8.3-8.3 2.2 0 4.3.9 5.9 2.4 1.6 1.6 2.4 3.7 2.4 5.9 0 4.6-3.7 8.3-8.3 8.3zm4.5-6.2c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.7-.3-1.4-.7-2-1.3-.5-.5-1-1.1-1.3-1.7-.1-.3 0-.4.1-.5.1-.1.3-.3.4-.4.1-.1.2-.3.2-.4 0-.1 0-.3-.1-.4-.1-.1-.5-1.3-.7-1.8-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.9.8-.9 2s.9 2.3 1 2.4c.1.1 1.7 2.6 4.1 3.7.6.2 1 .4 1.4.5.6.2 1.1.2 1.5.1.5-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1z" fill="white"/>
+      </svg>
+    </button>
+  </div>
   <div class="bot-nav-btns">
     <button class="nb active" onclick="swTab('cal',this)"><span class="ni">📅</span>Agenda</button>
     <button class="nb" onclick="swTab('patients',this)"><span class="ni">👥</span>Pacientes</button>
@@ -1350,8 +1366,104 @@ initAg();
 const lbEl=document.getElementById('last-bak');if(lbEl)lbEl.textContent=localStorage.getItem('lm4-ts')||'—';
 
 // ══════════════════════════════════════════
-// LOGIN SCREEN
+// AGENDA STRIP MESSAGES
 // ══════════════════════════════════════════
+const STRIP_MSGS = [
+  // ── AMOR ──
+  "Te amo mais do que qualquer palavra consegue dizer. ❤️",
+  "Você é o meu lar, não importa onde eu esteja. ❤️",
+  "Penso em você entre um atendimento e outro. 💕",
+  "Meu coração bate diferente quando você está por perto. 💗",
+  "Você é a melhor parte de todos os meus dias. 💖",
+  "Não existe dia ruim quando termina ao seu lado. ❤️",
+  "Obrigado por existir exatamente do jeito que você é. 🌹",
+  "Você me faz querer ser uma pessoa melhor a cada dia. 💕",
+  "Sou completamente apaixonado por você, sabia? ❤️",
+  "Cada amanhecer me lembra o quanto tenho sorte de ter você. ✨",
+  "Você é meu lugar favorito no mundo inteiro. 💗",
+  "Amo cada detalhe seu. Absolutamente tudo. 🥰",
+  "Nunca me canso de olhar pra você. ❤️",
+  "Você é a resposta de tudo que eu pedi pra Deus. 💖",
+  "Com você aprendi o que é amar de verdade. 💕",
+  // ── TRABALHO + VIAGEM ──
+  "Cada atendimento de hoje é um passo mais perto da próxima viagem. ✈️",
+  "Vai lá arrasar! A gente merece uma viagem linda em breve. 🌍❤️",
+  "Trabalha muito hoje pra a gente se perder por aí logo. 🗺️💕",
+  "Cada sessão é uma passagem comprada pro nosso próximo destino. ✈️",
+  "Imagina nós dois numa praia deserta depois de toda essa correria? Em breve. 🏖️❤️",
+  "O mundo é grande e a gente vai ver tudo junto. Hoje, foca! 🌎💗",
+  "Você cuida das pessoas e eu cuido dos nossos planos de viagem. 🗺️❤️",
+  "Cada paciente atendido hoje é mais um passo pro aeroporto. ✈️💕",
+  "Trabalha sorrindo amor, a gente tá juntando pro próximo destino. 🌅❤️",
+  "Sonhando com você e com o vento do mar nos nossos rostos. Em breve! 🌊💖",
+  "A vida é uma viagem e eu só quero viajar contigo. ❤️✈️",
+  "Dia produtivo hoje = jantar romântico num lugar lindo amanhã. 🕯️🌍",
+  "Você trabalha com amor e a gente viaja com amor. Perfeito. 💕🗺️",
+  "Cada dia de dedicação é um capítulo do livro das nossas aventuras. ✈️❤️",
+  "Imagina acordar contigo em Paris... bora trabalhar pra isso! 🗼💗",
+  "Você e eu, uma mochila, e o mundo todo pra explorar. Logo! 🌍❤️",
+  "Seu trabalho incrível patrocina nossas memórias mais lindas. 💕✈️",
+  "Cada quilômetro que você faz hoje vira um quilômetro de aventura nossa. 🗺️💖",
+  // ── MOTIVAÇÃO + AMOR ──
+  "Você cuida de todo mundo. Mas quem cuida de você sou eu. ❤️",
+  "Fisioterapeuta de dia, meu amor de sempre. 💕",
+  "Você não precisa ser perfeita pra ser incrível. Mas é as duas coisas. ✨❤️",
+  "Vai devagar, vai com calma, mas vai. Estou aqui te torcendo. 💗",
+  "Você transforma a dor das pessoas em movimento. Isso é lindo demais. 🌹",
+  "Orgulho de você todo dia, mas hoje especialmente. ❤️",
+  "Você não é só fisioterapeuta. Você é a cura de quem te encontra. 💕",
+  "Faz o que você ama e ama o que você faz. Isso te transborda. ✨",
+  "Cada pessoa que você atende hoje vai embora um pouco melhor. Que dom. 💖",
+  "O mundo fica mais bonito quando você está nele. Sempre. ❤️",
+  // ── CUIDADO COM CARINHO ──
+  "Vai com calma na moto, amor. Cada minuto que passa é um que eu fico te esperando. 🏍️❤️",
+  "Atenção no trânsito, porque sua vida é o bem mais precioso que tenho. 💗",
+  "Chega bem, chega no seu tempo. Aqui eu espero com saudade. 🏍️💕",
+  "Dirige com cuidado. Você tem muito amor pra receber ainda. ❤️",
+  "Vai devagar pra mim? Preciso de você inteirinha. 💖"
+];
+
+let agStripIdx = Math.floor(Math.random() * STRIP_MSGS.length);
+
+function showStripMsg() {
+  const el = document.getElementById('ag-strip-txt');
+  if (!el) return;
+  el.classList.add('fade');
+  setTimeout(() => {
+    agStripIdx = (agStripIdx + 1) % STRIP_MSGS.length;
+    el.textContent = STRIP_MSGS[agStripIdx];
+    el.classList.remove('fade');
+  }, 600);
+}
+
+// init first message
+setTimeout(() => {
+  const el = document.getElementById('ag-strip-txt');
+  if (el) el.textContent = STRIP_MSGS[agStripIdx];
+}, 100);
+
+// rotate every 7 seconds — long enough to read, not annoying
+setInterval(showStripMsg, 7000);
+
+// WA — open new chat with B's number (user can configure)
+function openWAme() {
+  // Opens a blank new conversation — user fills the number
+  // or pre-fill with a stored number
+  const saved = localStorage.getItem('lm4-b-phone');
+  if (saved) {
+    const g = greeting();
+    const msg = encodeURIComponent(g + '! Estou com saudades de você. ❤️');
+    window.open('https://wa.me/55' + saved + '?text=' + msg, '_blank');
+  } else {
+    const num = prompt('Qual o número do B? (somente dígitos, ex: 32991234567)');
+    if (num && num.trim()) {
+      localStorage.setItem('lm4-b-phone', num.trim().replace(/\D/g, ''));
+      const g = greeting();
+      const msg = encodeURIComponent(g + '! Estou com saudades de você. ❤️');
+      window.open('https://wa.me/55' + num.replace(/\D/g, '') + '?text=' + msg, '_blank');
+    }
+  }
+}
 
 // Love messages carousel — rotate every 4 seconds
 const TOTAL_MSGS = 11;
