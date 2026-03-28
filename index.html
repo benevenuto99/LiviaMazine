@@ -91,10 +91,10 @@ body{display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:r
 
 /* AGENDA */
 /* Nav love strip — acima das abas, presente em todas as telas */
-.nav-love-strip{display:flex;align-items:center;gap:10px;padding:6px 14px 5px;border-bottom:1px solid var(--bd);background:rgba(150,220,245,.03)}
-.nav-love-txt{font-size:11px;color:var(--tx2);font-style:italic;font-family:'Cormorant Garamond',serif;line-height:1.3;flex:1;opacity:.88;transition:opacity .6s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-love-strip{display:flex;align-items:center;gap:8px;padding:5px 14px;border-bottom:1px solid var(--bd);background:rgba(150,220,245,.03);min-height:30px}
+.nav-love-txt{font-size:11px;color:var(--tx2);font-style:italic;font-family:'Cormorant Garamond',serif;line-height:1;flex:1;opacity:.88;transition:opacity .6s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center}
 .nav-love-txt.fade{opacity:0}
-.nav-wa-btn{background:none;border:none;cursor:pointer;padding:2px;flex-shrink:0;line-height:1;opacity:.8;transition:opacity .15s;display:flex;align-items:center}
+.nav-wa-btn{background:none;border:none;cursor:pointer;padding:0;flex-shrink:0;line-height:1;opacity:.8;transition:opacity .15s;display:flex;align-items:center}
 .nav-wa-btn:hover,.nav-wa-btn:active{opacity:1}
 .ag-hdr{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 15px 10px}
 .ag-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;line-height:1}
@@ -530,6 +530,7 @@ textarea.fi{resize:vertical;min-height:68px}
   <!-- Love strip + WA — acima das abas, em todas as telas -->
   <div class="nav-love-strip">
     <span class="nav-love-txt" id="ag-strip-txt"></span>
+    <span style="display:flex;align-items:center;gap:3px;flex-shrink:0;white-space:nowrap"><span style="font-size:10px;color:rgba(150,220,245,.5);font-style:italic;line-height:1">Saudades?</span><span style="font-size:16px;line-height:1">👉</span></span>
     <button class="nav-wa-btn" onclick="openWAme()" title="Com saudades? Toque aqui 💚">
       <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
         <circle cx="16" cy="16" r="16" fill="#25D366"/>
@@ -1445,24 +1446,12 @@ setTimeout(() => {
 // rotate every 7 seconds — long enough to read, not annoying
 setInterval(showStripMsg, 7000);
 
-// WA — open new chat with B's number (user can configure)
+// WA — open chat with B directly
 function openWAme() {
-  // Opens a blank new conversation — user fills the number
-  // or pre-fill with a stored number
-  const saved = localStorage.getItem('lm4-b-phone');
-  if (saved) {
-    const g = greeting();
-    const msg = encodeURIComponent(g + '! Estou com saudades de você. ❤️');
-    window.open('https://wa.me/55' + saved + '?text=' + msg, '_blank');
-  } else {
-    const num = prompt('Qual o número do B? (somente dígitos, ex: 32991234567)');
-    if (num && num.trim()) {
-      localStorage.setItem('lm4-b-phone', num.trim().replace(/\D/g, ''));
-      const g = greeting();
-      const msg = encodeURIComponent(g + '! Estou com saudades de você. ❤️');
-      window.open('https://wa.me/55' + num.replace(/\D/g, '') + '?text=' + msg, '_blank');
-    }
-  }
+  const phone = '5532984351435';
+  const g = greeting();
+  const msg = encodeURIComponent(g + '! Estou com saudades de você. ❤️');
+  window.open('https://wa.me/' + phone + '?text=' + msg, '_blank');
 }
 
 // Love messages carousel — rotate every 4 seconds
